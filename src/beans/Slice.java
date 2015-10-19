@@ -2,14 +2,19 @@ package beans;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
-import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.indexer.IntBufferIndexer;
 import static org.bytedeco.javacpp.opencv_core.CV_32S;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import static org.bytedeco.javacpp.opencv_imgproc.THRESH_BINARY;
 import static org.bytedeco.javacpp.opencv_imgproc.threshold;
 import org.bytedeco.javacpp.opencv_core.Point;
 import utility.ImgUtil;
+import utility.OutputUtility;
+import org.bytedeco.javacpp.opencv_core.Scalar;
 
 /**
  *
@@ -17,40 +22,60 @@ import utility.ImgUtil;
  */
 public class Slice {
 
-    final static Logger logger = Logger.getLogger(Slice.class);    
-    
+    final static Logger logger = Logger.getLogger(Slice.class);
+
     // --------------------------------------------------------------------- | 
     //  FIELDS
-    // --------------------------------------------------------------------- | 
-    
-    /**	Reference to the parent Text. */
+    // --------------------------------------------------------------------- |
+    /**
+     * Reference to the parent Text.
+     */
     private Text text;
 
-    /** The bounds of the slice in the text. */
+    /**
+     * The bounds of the slice in the text.
+     */
     private int minX;
     private int maxX;
     private int minY;
     private int maxY;
 
-    /**	Image of the Slice. */
+    /**
+     * Image of the Slice.
+     */
     private Mat image;
 
-    /**	A Mat<int> matching each non-white point (in the Slice) with the ID of its Frag. */
+    /**
+     * A Mat<int> matching each non-white point (in the Slice) with the ID of
+     * its Frag.
+     */
     private Mat image_ext;
 
-    /**	Contains each Frag related to the Slice, the IDs of the Frags are the keys of the Map. */
+    /**
+     * Contains each Frag related to the Slice, the IDs of the Frags are the
+     * keys of the Map.
+     */
     HashMap<String, Frag> frag_map;
-    /**	Keep track of any Frag in which a geometric shape was detected. */
-    ArrayList<Frag> chosen_frags;
-    /**	Counter for the Glyphs in the Slice. */
+
+    /**
+     * Keep track of any Frag in which a geometric shape was detected.
+     */
+    List<Frag> chosen_frags;
+
+    /**
+     * Counter for the Glyphs in the Slice.
+     */
     int glyph_counter;
 
-    /**	Contains each Glyph related to the Slice, the IDs of the Glyphs are the keys of the Map. */
+    /**
+     * Contains each Glyph related to the Slice, the IDs of the Glyphs are the
+     * keys of the Map.
+     */
     HashMap<String, Glyph> glyph_map;
 
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
-    // --------------------------------------------------------------------- |   
+    // --------------------------------------------------------------------- |
     public Slice() {
 
         text = null;
@@ -59,6 +84,8 @@ public class Slice {
         minY = -1;
         maxY = -1;
         glyph_counter = 0;
+        frag_map = new HashMap<>();
+        chosen_frags = new ArrayList<>();
     }
 
     public Slice(Text tgtText, Mat tgtImage) {
@@ -70,7 +97,8 @@ public class Slice {
         maxY = -1;
         image = tgtImage;
         glyph_counter = 0;
-//        thresholdSlice();
+        frag_map = new HashMap<>();
+        chosen_frags = new ArrayList<>();
     }
 
     public Slice(Text tgtText, Mat tgtImage, int tgtMinX, int tgtMinY) {
@@ -82,7 +110,8 @@ public class Slice {
         maxY = -1;
         image = tgtImage;
         glyph_counter = 0;
-//	thresholdSlice();
+        frag_map = new HashMap<>();
+        chosen_frags = new ArrayList<>();
     }
 
     // --------------------------------------------------------------------- | 
@@ -144,6 +173,22 @@ public class Slice {
         this.image_ext = image_ext;
     }
 
+    public HashMap<String, Frag> getFrag_map() {
+        return frag_map;
+    }
+
+    public void setFrag_map(HashMap<String, Frag> frag_map) {
+        this.frag_map = frag_map;
+    }
+
+    public List<Frag> getChosen_frags() {
+        return chosen_frags;
+    }
+
+    public void setChosen_frags(List<Frag> chosen_frags) {
+        this.chosen_frags = chosen_frags;
+    }
+
     public int getGlyph_counter() {
         return glyph_counter;
     }
@@ -152,16 +197,34 @@ public class Slice {
         this.glyph_counter = glyph_counter;
     }
 
+    public HashMap<String, Glyph> getGlyph_map() {
+        return glyph_map;
+    }
+
+    public void setGlyph_map(HashMap<String, Glyph> glyph_map) {
+        this.glyph_map = glyph_map;
+    }
+
     // --------------------------------------------------------------------- | 
     //  METHODS
-    // --------------------------------------------------------------------- | 
-    
+    // --------------------------------------------------------------------- |
     private void thresholdSlice() {
 
         threshold(image, image, 100, 255, THRESH_BINARY);
     }
 
-    private void identifyFrags() {
+    /**
+     * Scan the image of the current Slice to identify its Frags. The function
+     * does not return anything since the output is stored in the following
+     * class fields.
+     *
+     * 1) image_ext: stores, for each point P in the Slice image, the id of the
+     * Frag to which P belongs.
+     * 2) frag_map: stores, for each Frag id, the
+     * corresponding Frag object.
+     *
+     */
+    public void identifyFrags() {
 
         logger.info("Starting, image: " + image.cols() + "x" + image.rows() + ".");
 
@@ -171,23 +234,51 @@ public class Slice {
          * della Slice, l'id del Frag al quale esso appartiene. Ogni cella della
          * matrice viene inizializzata a -1: id che identifica pixel non interessanti.
          */
-        image_ext = new Mat(image.rows(), image.cols(), CV_32S, -1);
+        image_ext = new Mat(image.rows(), image.cols(), CV_32S, new Scalar(0));
+        IntBufferIndexer image_extIdx = image_ext.createIndexer();
 
-        ArrayList< ArrayList<Point>> fragPoints = ImgUtil.findBlobs(woIm);
+        List< List<Point>> fragPoints = ImgUtil.findBlobs(woIm);
 
-	for (int i = 0; i < fragPoints.size(); i++) {
+        for (int i = 0; i < fragPoints.size(); i++) {
 
-            Frag newFrag = new Frag(this, Integer.toString(i));
-            frag_map.put(Integer.toString(i), newFrag);
+            // Frag id starts from 5, in order to avoid frag id 0.
+            int fragId = 100 + i;
+
+            Frag newFrag = new Frag(this, Integer.toString(fragId));
+            frag_map.put(Integer.toString(fragId), newFrag);
 
             for (Point curPoint : fragPoints.get(i)) {
-//                image_ext.at<int>(curPoint) = i;
-//                newFrag -> addPoint(curPoint);
+                image_extIdx.put(curPoint.y(), curPoint.x(), fragId);
+                newFrag.addPoint(curPoint);
             }
 
         }
 
         logger.info("Frags identified: " + frag_map.size());
+    }
+
+    public void invokeFirstScan() {
+
+        logger.info("Starting.");
+
+        if (frag_map.isEmpty()) {
+            return;
+        }
+
+        Iterator it = frag_map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+
+            boolean keepFrag = ((Frag) pair.getValue()).updateImage();
+            if (keepFrag) {
+                OutputUtility.writeMat(((Frag) pair.getValue()).getImage(), false);
+//                //            pair.getValue().invokeFirstScan();
+            } else {
+                it.remove();
+            }
+        }
+
+        logger.info("Frags identified: " + chosen_frags.size());
     }
 
 }

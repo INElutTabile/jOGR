@@ -6,12 +6,12 @@
 package utility;
 
 import java.util.ArrayList;
+import java.util.List;
+import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_imgproc;
-import static org.bytedeco.javacpp.opencv_imgproc.CV_GRAY2BGR;
-import static org.bytedeco.javacpp.opencv_imgproc.cvtColor;
 import org.bytedeco.javacpp.opencv_core.Point;
 import org.bytedeco.javacpp.opencv_core.Scalar;
 
@@ -21,23 +21,23 @@ import org.bytedeco.javacpp.opencv_core.Scalar;
  */
 public class ImgUtil {
 
+    final static Logger logger = Logger.getLogger(ImgUtil.class);
+
     /**
      * Find the connected components within the image.
+     *
      * @param tgtImage
-     * @return 
+     * @return
      */
-    public static ArrayList< ArrayList<Point>> findBlobs(Mat tgtImage) {
+    public static List< List<Point>> findBlobs(Mat tgtImage) {
 
-        ArrayList< ArrayList<Point>> blobs = new ArrayList();
-        Mat label_image = new Mat();
+        List< List<Point>> blobs = new ArrayList();
+
         Mat woIm = tgtImage.clone();
-
-        cvtColor(woIm, label_image, CV_GRAY2BGR);
-
-        // Starts at 2 because 0,1 are used already.
-        int label_count = 2;
-
         UByteBufferIndexer woImIdx = woIm.createIndexer();
+
+        // Start labelling the image starting from label 2, since 0 and 1are already in use.
+        int label_count = 2;
 
         for (int y = 0; y < woIm.rows(); y++) {
 
@@ -45,26 +45,28 @@ public class ImgUtil {
 
                 if (woImIdx.get(y, x) == 0) {
 
-                    Rect rect = new Rect();
-                    opencv_imgproc.floodFill(label_image, new Point(x, y), new Scalar(label_count), rect, new Scalar(0), new Scalar(0), 8);
-                    opencv_imgproc.floodFill(woIm, new Point(x, y), new Scalar(label_count), rect, new Scalar(0), new Scalar(0), 8);
+                    Scalar fillColor = new Scalar(label_count, label_count, label_count, 1.0);
 
-                    ArrayList<Point> blob = new ArrayList();
+                    Rect fragBounds = new Rect();
+                    opencv_imgproc.floodFill(woIm, new Point(x, y), fillColor, fragBounds, new Scalar(), new Scalar(), 8);
 
-                    for (int i = rect.y(); i < (rect.y() + rect.height()); i++) {
+                    List<Point> blob = new ArrayList();
 
-                        for (int j = rect.x(); j < (rect.x() + rect.width()); j++) {
+                    for (int i = fragBounds.y(); i < (fragBounds.y() + fragBounds.height()); i++) {
 
-                            if (woImIdx.get(y, x) == label_count) {
+                        for (int j = fragBounds.x(); j < (fragBounds.x() + fragBounds.width()); j++) {
+
+                            if (woImIdx.get(i, j) == label_count) {
                                 blob.add(new Point(j, i));
                             }
-
                         }
                     }
 
                     blobs.add(blob);
+//                    logger.info("Blob detected (" + blob.size() + " points). Current count: " + label_count);
                     label_count++;
                 }
+
             }
         }
 

@@ -1,6 +1,7 @@
 
 import beans.Text;
 import java.io.IOException;
+import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
 import utility.OutputUtility;
 
 /**
@@ -17,8 +18,10 @@ public class Project {
         Text theText = new Text("images/ADR-1.jpg", Text.VERTICAL);
 
         OutputUtility.writeMat(theText.getImage(), false);
+                
         theText.identifySlices();
-
+        theText.invokeFirstScan();
+        
     }
 
 }

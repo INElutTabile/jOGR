@@ -2,13 +2,16 @@ package beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
 import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import static org.bytedeco.javacpp.opencv_imgcodecs.imread;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_GRAY2BGR;
 import static org.bytedeco.javacpp.opencv_imgproc.THRESH_OTSU;
+import static org.bytedeco.javacpp.opencv_imgproc.cvtColor;
 import static org.bytedeco.javacpp.opencv_imgproc.medianBlur;
 import static org.bytedeco.javacpp.opencv_imgproc.threshold;
 import utility.OutputUtility;
@@ -25,38 +28,63 @@ public class Text {
     //  CONSTANTS
     // --------------------------------------------------------------------- |
     
-    /** Possible values for the visual organization of the Text. Organization is unidentified. */
+    /**
+     * Possible values for the visual organisation of the Text. Organisation is
+     * unidentified.
+     */
     public static final short UNIDENTIFIED = -1;
-    /** Possible values for the visual organization of the Text. Organization is horizontal. */
+    /**
+     * Possible values for the visual organisation of the Text. Organisation is
+     * horizontal.
+     */
     public static final short HORIZONTAL = 1;
-    /** Possible values for the visual organization of the Text. Organization is vertical. */
+    /**
+     * Possible values for the visual organisation of the Text. Organisation is
+     * vertical.
+     */
     public static final short VERTICAL = 2;
 
-    /** Minimum required distance between two Slices in the same Text. */
+    /**
+     * Minimum required distance between two Slices in the same Text.
+     */
     static final int SLICE_DISTANCE = 20;
 
-    /** Standard head size. */
+    /**
+     * Standard head size.
+     */
     static final double STD_HEAD_SIZE = 35.0;
-    /** Standard hand size. */
+    /**
+     * Standard hand size.
+     */
     static final double STD_HAND_SIZE = 15.0;
 
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
     
-    /** The visual organization of the {@code text}. */
+    /**
+     * The visual organization of the {@code text}.
+     */
     private short organization;
 
-    /** Image of the {@code text}. */
+    /**
+     * Image of the {@code text}.
+     */
     private Mat image;
 
-    /** The set of {@code slices} identified in the {@code text}. */
+    /**
+     * The set of {@code slices} identified in the {@code text}.
+     */
     private List<Slice> slices;
 
-    /** Scale factor of the {@code text}. */
+    /**
+     * Scale factor of the {@code text}.
+     */
     private double scaleFactor;
 
-    /** Output image of the {@code text}. */
+    /**
+     * Output image of the {@code text}.
+     */
     private Mat outputImage;
 
     // --------------------------------------------------------------------- | 
@@ -118,7 +146,7 @@ public class Text {
     public double getScaleFactor() {
 
         if (scaleFactor == 0.0) {
-            findScaleFactor();
+            //           findScaleFactor();
         }
         return scaleFactor;
     }
@@ -157,8 +185,8 @@ public class Text {
     }
 
     /**
-     *	Text preprocessing routine.
-     *	Includes smoothing.
+     * Text preprocessing routine.
+     * Includes smoothing.
      */
     private void preprocessText() {
 
@@ -171,7 +199,7 @@ public class Text {
     }
 
     /**
-     *	Text thresholding routine.
+     * Text thresholding routine.
      */
     private void thresholdText() {
 
@@ -179,8 +207,8 @@ public class Text {
     }
 
     /**
-     *	Text postprocessing routine.
-     *	Includes smoothing or opening/closure.
+     * Text post-processing routine.
+     * Includes smoothing or opening/closure.
      */
     private void postprocessText() {
 
@@ -192,9 +220,10 @@ public class Text {
     }
 
     /**
-     *	Invokes the proper slice identification routine, according to the visual
-     *	organization of the current text. If the organization is neither VERTICAL nor
-     *	HORIZONTAL, the function does nothing.
+     * Invokes the proper slice identification routine, according to the visual
+     * organisation of the current text. If the organisation is neither VERTICAL
+     * nor
+     * HORIZONTAL, the function does nothing.
      */
     public void identifySlices() {
         if (organization == VERTICAL) {
@@ -205,8 +234,8 @@ public class Text {
     }
 
     /**
-     *	Slice identification routine for the VERTICAL organisation.
-     *	Splits the current Text in a set of vertical Slices.
+     * Slice identification routine for the VERTICAL organisation.
+     * Splits the current Text in a set of vertical Slices.
      */
     private void identifyVerticalSlices() {
 
@@ -269,7 +298,9 @@ public class Text {
             }
         }
 
-        /** Slice filtering.													*/
+        /**
+         * Slice filtering.
+         */
         sliceWidthAverage = sliceWidthAverage / sliceCount;
 
         for (Slice curSlice : allSlices) {
@@ -285,8 +316,8 @@ public class Text {
     }
 
     /**
-     *	Slice identification routine for the HORIZONTAL organization.
-     *	Splits the current Text in a set of horizontal Slices.
+     * Slice identification routine for the HORIZONTAL organization.
+     * Splits the current Text in a set of horizontal Slices.
      */
     private void identifyHorizontalSlices() {
 
@@ -305,7 +336,7 @@ public class Text {
             curSlice.invokeFirstScan();
         }
 
-        //      displayAllShapes();
+        displayAllShapes();
     }
 
     public void invokeSecondScan() {
@@ -315,7 +346,7 @@ public class Text {
             logger.info("----------------------------------------------------------");
             logger.info("[II] Processing slice.");
             logger.info("----------------------------------------------------------");
-            curSlice.invokeSecondScan();
+            //    curSlice.invokeSecondScan();
         }
 
         //    displayMainShapes();
@@ -328,7 +359,7 @@ public class Text {
             logger.info("----------------------------------------------------------");
             logger.info("[III] Processing slice.");
             logger.info("----------------------------------------------------------");
-            curSlice.invokeThirdScan();
+            //      curSlice.invokeThirdScan();
         }
 
         OutputUtility.writeMat(outputImage, true);
@@ -379,6 +410,45 @@ public class Text {
 //	}
 //
 //}
+    private void displayAllShapes() {
 
+        logger.info("Starting.");
+
+        Mat finalImage = image.clone();
+        cvtColor(finalImage, finalImage, CV_GRAY2BGR);
+
+        for (Slice curSlice : slices) {
+
+            Map<String, Frag> curFrags = curSlice.getFrag_map();
+
+//		for (map<int, Frag*>::iterator it = curFrags.begin(); it != curFrags.end(); it++) {
+//
+//			Frag* curFrag = it->second;
+//
+//			vector<GeometricShape*> curShapes = curFrag->getShapes();
+//
+//			for (size_t j = 0; j != curShapes.size(); j++) {
+//
+//				if (curShapes.at(j)->getType() == GeometricShape::CIRCLE) {
+//					GeometricCircle curShape = *(GeometricCircle*) curShapes.at(j);
+//					curShape.shift(Point(curFrag->getMinX() + slices[i]->getMinX(), curFrag->getMinY() + slices[i]->getMinY()));
+//					GeometricCircle::print(finalImage, curShape);
+//				}
+//				else if (curShapes.at(j)->getType() == GeometricShape::RECTANGLE) {
+//					GeometricRectangle curShape = *(GeometricRectangle*) curShapes.at(j);
+//					curShape.shift(Point(curFrag->getMinX() + slices[i]->getMinX(), curFrag->getMinY() + slices[i]->getMinY()));
+//					GeometricRectangle::print(finalImage, curShape);
+//				}
+//				else if (curShapes.at(j)->getType() == GeometricShape::TRIANGLE) {
+//					GeometricTriangle curShape = *(GeometricTriangle*) curShapes.at(j);
+//					curShape.shift(Point(curFrag->getMinX() + slices[i]->getMinX(), curFrag->getMinY() + slices[i]->getMinY()));
+//					GeometricTriangle::print(finalImage, curShape);
+//				}
+//			}
+//		}
+        }
+
+        OutputUtility.writeMat(finalImage, true);
+    }
 
 }
