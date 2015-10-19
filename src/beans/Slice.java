@@ -1,6 +1,15 @@
 package beans;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.apache.log4j.Logger;
+import org.bytedeco.javacpp.opencv_core;
+import static org.bytedeco.javacpp.opencv_core.CV_32S;
 import org.bytedeco.javacpp.opencv_core.Mat;
+import static org.bytedeco.javacpp.opencv_imgproc.THRESH_BINARY;
+import static org.bytedeco.javacpp.opencv_imgproc.threshold;
+import org.bytedeco.javacpp.opencv_core.Point;
+import utility.ImgUtil;
 
 /**
  *
@@ -8,9 +17,11 @@ import org.bytedeco.javacpp.opencv_core.Mat;
  */
 public class Slice {
 
+    final static Logger logger = Logger.getLogger(Slice.class);    
+    
     // --------------------------------------------------------------------- | 
     //  FIELDS
-    // --------------------------------------------------------------------- |    
+    // --------------------------------------------------------------------- | 
     
     /**	Reference to the parent Text. */
     private Text text;
@@ -28,19 +39,18 @@ public class Slice {
     private Mat image_ext;
 
     /**	Contains each Frag related to the Slice, the IDs of the Frags are the keys of the Map. */
-//    HashMap <int, Frag> frag_map;
+    HashMap<String, Frag> frag_map;
     /**	Keep track of any Frag in which a geometric shape was detected. */
-//    ArrayList<Frag> chosen_frags ;
+    ArrayList<Frag> chosen_frags;
     /**	Counter for the Glyphs in the Slice. */
     int glyph_counter;
 
     /**	Contains each Glyph related to the Slice, the IDs of the Glyphs are the keys of the Map. */
-//    HashMap<int, Glyph> glyph_map ;
-    
+    HashMap<String, Glyph> glyph_map;
+
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
     // --------------------------------------------------------------------- |   
-    
     public Slice() {
 
         text = null;
@@ -74,11 +84,10 @@ public class Slice {
         glyph_counter = 0;
 //	thresholdSlice();
     }
-    
+
     // --------------------------------------------------------------------- | 
     //  EXTENDED GETTERS AND SETTERS
     // --------------------------------------------------------------------- |
-
     public Text getText() {
         return text;
     }
@@ -142,7 +151,43 @@ public class Slice {
     public void setGlyph_counter(int glyph_counter) {
         this.glyph_counter = glyph_counter;
     }
+
+    // --------------------------------------------------------------------- | 
+    //  METHODS
+    // --------------------------------------------------------------------- | 
     
-    
+    private void thresholdSlice() {
+
+        threshold(image, image, 100, 255, THRESH_BINARY);
+    }
+
+    private void identifyFrags() {
+
+        logger.info("Starting, image: " + image.cols() + "x" + image.rows() + ".");
+
+        Mat woIm = image.clone();
+
+        /* La Mat<int> "image_ext" immagazzinerà, per ogni pixel dell' immagine
+         * della Slice, l'id del Frag al quale esso appartiene. Ogni cella della
+         * matrice viene inizializzata a -1: id che identifica pixel non interessanti.
+         */
+        image_ext = new Mat(image.rows(), image.cols(), CV_32S, -1);
+
+        ArrayList< ArrayList<Point>> fragPoints = ImgUtil.findBlobs(woIm);
+
+	for (int i = 0; i < fragPoints.size(); i++) {
+
+            Frag newFrag = new Frag(this, Integer.toString(i));
+            frag_map.put(Integer.toString(i), newFrag);
+
+            for (Point curPoint : fragPoints.get(i)) {
+//                image_ext.at<int>(curPoint) = i;
+//                newFrag -> addPoint(curPoint);
+            }
+
+        }
+
+        logger.info("Frags identified: " + frag_map.size());
+    }
 
 }

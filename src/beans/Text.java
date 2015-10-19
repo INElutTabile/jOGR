@@ -24,6 +24,7 @@ public class Text {
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
     // --------------------------------------------------------------------- |
+    
     /** Possible values for the visual organization of the Text. Organization is unidentified. */
     public static final short UNIDENTIFIED = -1;
     /** Possible values for the visual organization of the Text. Organization is horizontal. */
@@ -42,6 +43,7 @@ public class Text {
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
+    
     /** The visual organization of the {@code text}. */
     private short organization;
 
@@ -60,6 +62,7 @@ public class Text {
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
     // --------------------------------------------------------------------- | 
+    
     public Text() {
         organization = Text.UNIDENTIFIED;
         slices = new ArrayList<>();
@@ -83,6 +86,7 @@ public class Text {
     // --------------------------------------------------------------------- | 
     //  EXTENDED GETTERS AND SETTERS
     // --------------------------------------------------------------------- |
+    
     public short getOrganization() {
         return organization;
     }
@@ -112,6 +116,10 @@ public class Text {
     }
 
     public double getScaleFactor() {
+
+        if (scaleFactor == 0.0) {
+            findScaleFactor();
+        }
         return scaleFactor;
     }
 
@@ -129,7 +137,8 @@ public class Text {
 
     // --------------------------------------------------------------------- | 
     //  METHODS
-    // --------------------------------------------------------------------- |  
+    // --------------------------------------------------------------------- | 
+    
     public void updateOutputImage() {
 
         logger.info("Starting.");
@@ -283,5 +292,93 @@ public class Text {
 
         logger.error("TO BE DONE!");
     }
+
+    public void invokeFirstScan() {
+
+        for (Slice curSlice : slices) {
+
+            logger.info("----------------------------------------------------------");
+            logger.info("[I] Processing slice.");
+            logger.info("----------------------------------------------------------");
+            OutputUtility.writeMat(curSlice.getImage(), false);
+            curSlice.identifyFrags();
+            curSlice.invokeFirstScan();
+        }
+
+        //      displayAllShapes();
+    }
+
+    public void invokeSecondScan() {
+
+        for (Slice curSlice : slices) {
+
+            logger.info("----------------------------------------------------------");
+            logger.info("[II] Processing slice.");
+            logger.info("----------------------------------------------------------");
+            curSlice.invokeSecondScan();
+        }
+
+        //    displayMainShapes();
+    }
+
+    public void invokeThirdScan() {
+
+        for (Slice curSlice : slices) {
+
+            logger.info("----------------------------------------------------------");
+            logger.info("[III] Processing slice.");
+            logger.info("----------------------------------------------------------");
+            curSlice.invokeThirdScan();
+        }
+
+        OutputUtility.writeMat(outputImage, true);
+    }
+
+//    private void findScaleFactor() {
+//
+//        logger.info("Starting.");
+//
+//        ArrayList<Integer> headSizes = new ArrayList();
+//        ArrayList<Integer> handSizes = new ArrayList();
+//
+//	for (Slice curSlice : slices) {
+//
+//		HashMap<int, Frag> curFrags = curSlice.getFrag_map();
+//
+//		for (map<int, Frag*>::iterator it = curFrags.begin(); it != curFrags.end(); it++) {
+//
+//			Frag* curFrag = it->second;
+//			Glyph* curGlyph = it->second->getGlyph();
+//
+//			if (curGlyph != NULL && curGlyph->getRegion() == ModelHeE::HEE_HEAD) {
+//
+//				GeometricCircle* curCircle = (GeometricCircle*) curFrag->getGreaterShape(GeometricShape::CIRCLE);
+//				if (curCircle != NULL)
+//					headSizes.push_back(curCircle->getRadius() * 2);
+//			}
+//
+//			if (curGlyph != NULL && curGlyph->getRegion() == ModelHaC::HAC) {
+//
+//				GeometricRectangle* curRectangle = (GeometricRectangle*) curFrag->getGreaterShape(GeometricShape::RECTANGLE);
+//
+//				if (curRectangle != NULL && curRectangle->isSquare())
+//					handSizes.push_back(curRectangle->getHeight());
+//			}
+//
+//		}
+//
+//	}
+//
+//	if (!headSizes.empty()) {
+//		scaleFactor = STD_HEAD_SIZE / MathUtil::average(headSizes);
+//	} else if (!handSizes.empty()) {
+//		scaleFactor = STD_HAND_SIZE / MathUtil::average(handSizes);
+//	} else {
+//		LOG_W("[Text::findScaleFactor] Warning: no scale factor could be determined.");
+//		scaleFactor = 1;
+//	}
+//
+//}
+
 
 }
