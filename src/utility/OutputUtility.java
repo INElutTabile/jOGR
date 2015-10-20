@@ -2,6 +2,7 @@ package utility;
 
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.bytedeco.javacpp.indexer.FloatBufferIndexer;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import static org.bytedeco.javacpp.opencv_highgui.CV_GUI_EXPANDED;
@@ -120,14 +121,15 @@ public class OutputUtility {
 
     // --------------------------------------------------------------------- | 
     // METHODS - CONSOLE PRINT
-    // --------------------------------------------------------------------- | 
+    // --------------------------------------------------------------------- |
+    
     /**
-     * Prints the content of an image on the console.
+     * Prints the content of an image (content: UByte) on the console.
      *
      * @param	tgtMat	The image to be printed.
      *
      */
-    public static void printMat(Mat tgtMat) {
+    public static void printUByteMat(Mat tgtMat) {
 
         UByteBufferIndexer matIdx = tgtMat.createIndexer();
 
@@ -140,5 +142,25 @@ public class OutputUtility {
             System.out.println(row);
         }
     }
+    
+    /**
+     * Prints the content of an image (content: Float) on the console.
+     *
+     * @param	tgtMat	The image to be printed.
+     *
+     */
+    public static void printFloatMat(Mat tgtMat) {
+
+        FloatBufferIndexer matIdx = tgtMat.createIndexer();
+
+        for (int y = 0; y < tgtMat.rows(); y++) {
+            String row = "|";
+            for (int x = 0; x < tgtMat.cols(); x++) {
+                row += matIdx.get(y, x) + " ";
+            }
+            row += "|";
+            System.out.println(row);
+        }
+    }    
 
 }

@@ -28,64 +28,42 @@ public class Text {
     //  CONSTANTS
     // --------------------------------------------------------------------- |
     
-    /**
-     * Possible values for the visual organisation of the Text. Organisation is
-     * unidentified.
-     */
+    /** Possible values for the visual organisation of the text. Organisation is unidentified. */
     public static final short UNIDENTIFIED = -1;
-    /**
-     * Possible values for the visual organisation of the Text. Organisation is
-     * horizontal.
-     */
+    
+    /** Possible values for the visual organisation of the text. Organisation is horizontal. */
     public static final short HORIZONTAL = 1;
-    /**
-     * Possible values for the visual organisation of the Text. Organisation is
-     * vertical.
-     */
+    
+    /** Possible values for the visual organisation of the text. Organisation is vertical. */
     public static final short VERTICAL = 2;
 
-    /**
-     * Minimum required distance between two Slices in the same Text.
-     */
+    /** Minimum required distance between two Slices in the same text. */
     static final int SLICE_DISTANCE = 20;
 
-    /**
-     * Standard head size.
-     */
+    /** Standard head size. */
     static final double STD_HEAD_SIZE = 35.0;
-    /**
-     * Standard hand size.
-     */
+    
+    /** Standard hand size. */
     static final double STD_HAND_SIZE = 15.0;
 
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
     
-    /**
-     * The visual organization of the {@code text}.
-     */
+    /** The visual organisation of the text. */
     private short organization;
 
-    /**
-     * Image of the {@code text}.
-     */
+    /** Image of the text. */
     private Mat image;
 
-    /**
-     * The set of {@code slices} identified in the {@code text}.
-     */
-    private List<Slice> slices;
+    /** The set of slices identified in the text. */
+    private List<Slice> slices = new ArrayList<>();
 
-    /**
-     * Scale factor of the {@code text}.
-     */
-    private double scaleFactor;
+    /** Scale factor of the text. */
+    private double scaleFactor = 0.0;
 
-    /**
-     * Output image of the {@code text}.
-     */
-    private Mat outputImage;
+    /** Output image of the text. */
+    private Mat outputImage = null;
 
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
@@ -93,18 +71,12 @@ public class Text {
     
     public Text() {
         organization = Text.UNIDENTIFIED;
-        slices = new ArrayList<>();
-        scaleFactor = 0.0;
-        outputImage = null;
     }
 
     public Text(String tgtImagePath, short tgtOrganization) {
 
         image = imread(tgtImagePath, CV_8UC1);
-        slices = new ArrayList<>();
         organization = tgtOrganization;
-        scaleFactor = 0.0;
-        outputImage = null;
 
         preprocessText();
         thresholdText();

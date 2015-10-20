@@ -8,9 +8,12 @@
             <file>file:/Users/fabrizioborgia/NetBeansProjects/jOGR/src/Project.java</file>
         </group>
         <group name="Sapienza">
+            <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/model/GeometricShape.java</file>
+            <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Text.java</file>
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Slice.java</file>
+            <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/model/GeometricCircle.java</file>
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Frag.java</file>
-            <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/log4j.properties</file>
+            <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/OutputUtility.java</file>
         </group>
     </open-files>
 </project-private>

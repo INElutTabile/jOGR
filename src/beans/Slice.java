@@ -27,96 +27,61 @@ public class Slice {
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
-    /**
-     * Reference to the parent Text.
-     */
+    
+    /** Reference to the parent text. */
     private Text text;
 
-    /**
-     * The bounds of the slice in the text.
-     */
-    private int minX;
-    private int maxX;
-    private int minY;
-    private int maxY;
+    /** The bounds of the slice in the text. */
+    private int minX = -1;
+    private int maxX = -1;
+    private int minY = -1;
+    private int maxY = -1;
 
-    /**
-     * Image of the Slice.
-     */
+    /** Image of the slice. */
     private Mat image;
 
-    /**
-     * A Mat<int> matching each non-white point (in the Slice) with the ID of
-     * its Frag.
-     */
+    /** A Mat<int> matching each non-white point (in the slice) with the ID of its frag. */
     private Mat image_ext;
 
-    /**
-     * Contains each Frag related to the Slice, the IDs of the Frags are the
-     * keys of the Map.
-     */
-    HashMap<String, Frag> frag_map;
+    /** Contains each frag related to the slice, the IDs of the frag are the keys of the map. */
+    HashMap<String, Frag> frag_map = new HashMap<>();
 
-    /**
-     * Keep track of any Frag in which a geometric shape was detected.
-     */
-    List<Frag> chosen_frags;
+    /** Keep track of any frag in which a geometric shape was detected. */
+    List<Frag> chosen_frags = new ArrayList<>();
 
-    /**
-     * Counter for the Glyphs in the Slice.
-     */
-    int glyph_counter;
+    /** Counter for the glyphs in the Slice. */
+    int glyph_counter = 0;
 
-    /**
-     * Contains each Glyph related to the Slice, the IDs of the Glyphs are the
-     * keys of the Map.
-     */
+    /** Contains each glyph related to the slice, the IDs of the glyphs are the keys of the Map. */
     HashMap<String, Glyph> glyph_map;
 
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
     // --------------------------------------------------------------------- |
+    
     public Slice() {
 
         text = null;
-        minX = -1;
-        maxX = -1;
-        minY = -1;
-        maxY = -1;
-        glyph_counter = 0;
-        frag_map = new HashMap<>();
-        chosen_frags = new ArrayList<>();
     }
 
     public Slice(Text tgtText, Mat tgtImage) {
 
         text = tgtText;
-        minX = -1;
-        maxX = -1;
-        minY = -1;
-        maxY = -1;
         image = tgtImage;
-        glyph_counter = 0;
-        frag_map = new HashMap<>();
-        chosen_frags = new ArrayList<>();
     }
 
     public Slice(Text tgtText, Mat tgtImage, int tgtMinX, int tgtMinY) {
 
         text = tgtText;
         minX = tgtMinX;
-        maxX = -1;
         minY = tgtMinY;
-        maxY = -1;
         image = tgtImage;
-        glyph_counter = 0;
-        frag_map = new HashMap<>();
-        chosen_frags = new ArrayList<>();
     }
 
     // --------------------------------------------------------------------- | 
     //  EXTENDED GETTERS AND SETTERS
     // --------------------------------------------------------------------- |
+    
     public Text getText() {
         return text;
     }
@@ -208,20 +173,21 @@ public class Slice {
     // --------------------------------------------------------------------- | 
     //  METHODS
     // --------------------------------------------------------------------- |
+    
     private void thresholdSlice() {
 
         threshold(image, image, 100, 255, THRESH_BINARY);
     }
 
     /**
-     * Scan the image of the current Slice to identify its Frags. The function
+     * Scan the image of the current Slice to identify its frag. The function
      * does not return anything since the output is stored in the following
-     * class fields.
+     * class fields.<br>
      *
-     * 1) image_ext: stores, for each point P in the Slice image, the id of the
-     * Frag to which P belongs.
-     * 2) frag_map: stores, for each Frag id, the
-     * corresponding Frag object.
+     * 1) {@code image_ext}: stores, for each point P in the slice image, the id of the
+     * frag to which P belongs.<br>
+     * 2) {@code frag_map}: stores, for each frag id, the
+     * corresponding frag object.<br>
      *
      */
     public void identifyFrags() {
@@ -272,7 +238,7 @@ public class Slice {
             boolean keepFrag = ((Frag) pair.getValue()).updateImage();
             if (keepFrag) {
                 OutputUtility.writeMat(((Frag) pair.getValue()).getImage(), false);
-//                //            pair.getValue().invokeFirstScan();
+                ((Frag) pair.getValue()).invokeFirstScan();
             } else {
                 it.remove();
             }

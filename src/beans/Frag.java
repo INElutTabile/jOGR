@@ -7,6 +7,7 @@ package beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import model.GeometricCircle;
 import model.GeometricShape;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
@@ -26,71 +27,57 @@ public class Frag {
 
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
-    // --------------------------------------------------------------------- |    
+    // --------------------------------------------------------------------- | 
     /**
-     * Minimum number of points required for a Frag to be considered a proper
-     * Frag (under this value, a Frag is considered as noise).
+     * Minimum number of points required for a frag to be considered a proper
+     * frag (under this value, a Frag is considered as noise).
      */
     static final int MIN_FRAGPOINTS = 10;
 
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- | 
-    /**
-     * Reference to the parent Slice.
-     */
+    
+    /** Reference to the parent slice. */
     Slice slice;
 
-    /**
-     * Reference to the associated Glyph.
-     */
+    /** Reference to the associated glyph. */
     Glyph glyph;
 
-    /**
-     * Id of the Frag.
-     */
+    /** Id of the frag. */
     String id;
 
-    /**
-     * The bounds (in the Slice image) of the MBR containing the Frag.
-     */
+    /** The bounds (in the slice image) of the MBR containing the Frag. */
     int minX = -1;
     int maxX = -1;
     int minY = -1;
     int maxY = -1;
 
-    /**
-     * Image of the Frag.
-     */
+    /** Image of the frag. */
     Mat image;
 
-    /**
-     * A vector which contains the coordinates of all the points in the Frag.
-     */
-    List<Point> points;
+    /** A list containing the coordinates of all the points in the frag. */
+    List<Point> points = new ArrayList<>();
 
-    /**
-     * A vector which contains the coordinates of all the holes in the Frag.
-     */
-    List< List<Point>> holes;
+    /** A list containing the coordinates of all the holes in the frag. */
+    List< List<Point>> holes = new ArrayList<>();
 
-    /**
-     * A vector which contains the GeometricShape(s) identified in the Frag.
-     */
-    List<GeometricShape> shapes;
+    /** A list containing the geometricshapes identified in the frag. */
+    List<GeometricShape> shapes = new ArrayList<>();
 
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
     // --------------------------------------------------------------------- | 
+    
     public Frag(Slice tgtSlice, String tgtId) {
         this.slice = tgtSlice;
         this.id = tgtId;
-        points = new ArrayList<>();
     }
 
     // --------------------------------------------------------------------- | 
     //  EXTENDED GETTERS AND SETTERS
     // --------------------------------------------------------------------- |
+    
     public Slice getSlice() {
         return slice;
     }
@@ -186,9 +173,10 @@ public class Frag {
     // --------------------------------------------------------------------- | 
     //  METHODS
     // --------------------------------------------------------------------- |
+    
     public boolean updateImage() {
 
-        logger.info("Starting image update for frag: " + id + " (" + points.size() + ").");
+//        logger.info("Starting image update for frag: " + id + " (" + points.size() + ").");
 
         if (getPoints().size() < MIN_FRAGPOINTS) {
             return false;
@@ -205,9 +193,6 @@ public class Frag {
         int newWidth = maxX - minX;
         int newHeight = maxY - minY;
 
-        logger.info(newWidth);
-        logger.info(newHeight);
-
         if (newHeight > 0 || newWidth > 0) {
 
             Mat newImage = new Mat(newHeight + 1, newWidth + 1, CV_8U, new Scalar(255, 255, 255, 1.0));
@@ -222,15 +207,15 @@ public class Frag {
         }
 
         //     holes = GeomUtil::shiftPoints(ImgUtil::findHoles(image), this->getTL());
-        logger.info("Image update successful.");
+//        logger.info("Image update successful.");
         return true;
     }
 
     public void invokeFirstScan() {
 
-        logger.info("Starting: Frag id: " + id);
+        logger.info("Starting: Frag: " + this.toString());
 
-//	GeometricCircle::detect(*this);
+	new GeometricCircle().detect(this);
 //	GeometricRectangle::detect(*this);
 //	GeometricTriangle::detect(*this);
         if (shapes.size() > 0) {
@@ -239,5 +224,14 @@ public class Frag {
 
         logger.info("Returning.");
     }
+
+    @Override
+    public String toString() {
+        return "Frag{" + "id=" + id + ", minX=" + minX + ", minY=" + minY + ", maxX=" + maxX + ", maxY=" + maxY + '}';
+    }
+
+
+    
+    
 
 }
