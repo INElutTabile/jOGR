@@ -2,11 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/Users/fabrizioborgia/NetBeansProjects/jOGR/src/beans/Text.java</file>
-            <file>file:/Users/fabrizioborgia/NetBeansProjects/jOGR/src/utility/OutputUtility.java</file>
-            <file>file:/Users/fabrizioborgia/NetBeansProjects/jOGR/src/Project.java</file>
-        </group>
         <group name="Sapienza">
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/model/GeometricShape.java</file>
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Text.java</file>
@@ -14,6 +9,16 @@
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/model/GeometricCircle.java</file>
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Frag.java</file>
             <file>file:/C:/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/OutputUtility.java</file>
+        </group>
+        <group>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/GeomUtil.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/MathUtil.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Frag.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/model/GeometricCircle.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/OutputUtility.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/utility/ImgUtil.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Text.java</file>
+            <file>file:/Users/fabrizioborgia/Development_Core/Java/GitHub%20Repos/jOGR/src/beans/Slice.java</file>
         </group>
     </open-files>
 </project-private>

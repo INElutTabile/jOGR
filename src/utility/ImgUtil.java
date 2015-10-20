@@ -390,38 +390,37 @@ public class ImgUtil {
 //	return Point(-1, -1);
 //}
 
-/**
- *  Scales the circle using 'tgtRadiusExp' factor. The circle is divided in sectors, each sector having an angle of 'tgtStep' degrees.
- *  For each sector, the number of contained foreground pixels is counted.
- *   
- * @param tgtPoints
- * @param tgtCircle
- * @param tgtRadiusExp
- * @param tgtStep
- * @return 
- */
-public static List<Integer> checkCircleSectorsCoverage(List<Point> tgtPoints, GeometricCircle tgtCircle, float tgtRadiusExp, int tgtStep) {
+    /**
+     *  Scales the circle using 'tgtRadiusExp' factor. The circle is divided in sectors, each sector having an angle of 'tgtStep' degrees.
+     *  For each sector, the number of contained foreground pixels is counted.
+     *   
+     * @param tgtPoints
+     * @param tgtCircle
+     * @param tgtRadiusExp
+     * @param tgtStep
+     * @return 
+     */
+    public static int[] checkCircleSectorsCoverage(List<Point> tgtPoints, GeometricCircle tgtCircle, double tgtRadiusExp, int tgtStep) {
 
-	Point circleCenter = tgtCircle.getCenter();
-	int circleRadius = (int) (tgtCircle.getRadius() * tgtRadiusExp);
+        Point circleCenter = tgtCircle.getCenter();
+        int circleRadius = (int) (tgtCircle.getRadius() * tgtRadiusExp);
 
-	vector<int> circleData(360 / tgtStep, 0);
+        int[] circleData = new int[360 / tgtStep];
 
-	for (size_t i = 0; i < tgtPoints.size(); i++) {
+        for (Point curPoint : tgtPoints) {
 
-		Point curCartesianPoint = GeomUtil::getCartesianCoordinates(circleCenter, tgtPoints[i]);
+            Point curCartesianPoint = GeomUtil.getCartesianCoordinates(circleCenter, curPoint);
 
-		float angleRad = GeomUtil::arctangent2(curCartesianPoint);
-		int angleDeg = angleRad * (180 / M_PI);
+            float angleRad = GeomUtil.arctangent2(curCartesianPoint);
+            int angleDeg = (int) (angleRad * (180 / Math.PI));
 
-		if (GeomUtil::distance(tgtPoints[i], circleCenter) <= circleRadius) {
-			circleData.at(angleDeg / tgtStep) += 1;
-		}
-
-	}
-
-	return circleData;
-}
+            if (GeomUtil.distance(curPoint, circleCenter) <= circleRadius) {
+                circleData[angleDeg / tgtStep] += 1;
+            }
+        }
+        
+        return circleData;
+    }
 
 ///**
 // *  Scales the circle using 'tgtRadiusExp' factor. The circle is divided in sectors, each sector having an angle of 'tgtStep' degrees.

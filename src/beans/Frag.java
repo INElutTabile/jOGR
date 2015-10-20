@@ -169,6 +169,11 @@ public class Frag {
     public List<GeometricShape> getShapes() {
         return shapes;
     }
+    
+    public void addCircle(GeometricCircle tgtCircle) {
+
+        shapes.add(new GeometricCircle(tgtCircle));
+    }  
 
     public void setShapes(ArrayList<GeometricShape> shapes) {
         this.shapes = shapes;

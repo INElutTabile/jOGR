@@ -33,6 +33,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.CV_HOUGH_GRADIENT;
 import static org.bytedeco.javacpp.opencv_imgproc.HoughCircles;
 import static org.bytedeco.javacpp.opencv_imgproc.cvHoughCircles;
 import utility.GeomUtil;
+import utility.ImgUtil;
 import utility.OutputUtility;
 
 /**
@@ -41,8 +42,8 @@ import utility.OutputUtility;
  */
 public class GeometricCircle extends GeometricShape {
 
-    final static Logger logger = Logger.getLogger(GeometricCircle.class);    
-    
+    final static Logger logger = Logger.getLogger(GeometricCircle.class);
+
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
     // --------------------------------------------------------------------- |
@@ -71,6 +72,12 @@ public class GeometricCircle extends GeometricShape {
     
     public GeometricCircle() {
         super(GeometricShape.CIRCLE);
+    }
+
+    public GeometricCircle(GeometricCircle tgtGeometricCircle) {
+        super(GeometricShape.CIRCLE);
+        this.center = tgtGeometricCircle.getCenter();
+        this.radius = tgtGeometricCircle.getRadius();
     }
 
     public GeometricCircle(Point tgtCenter, int tgtRadius) {
@@ -121,36 +128,36 @@ public class GeometricCircle extends GeometricShape {
         List<GeometricCircle> outputCircles = new ArrayList<>();
 
         CvSeq detectedCircles = cvHoughCircles(
-                currentImageGray,               // The 8-bit, single-channel, grayscale input image.
-                mStorage,                       // The output vector of found circles. Each vector is encoded as 3-element floating-point vector.
-                CV_HOUGH_GRADIENT,              // Currently, the only implemented method is CV_HOUGH_GRADIENT.
-                1,                              // The inverse ratio of the accumulator resolution to the image resolution.
-                2,                              // Minimum distance between the centers of the detected circles. If the parameter
-                254,                            // CV_HOUGH_GRADIENT it is the higher threshold of the two passed to Canny() edge
-                25,                             // CV_HOUGH_GRADIENT is the accumulator threshold at the center detection stage.
-                tgtFrag.getImage().rows() / 4,  // Minimum circle radius.
-                0                               // Maximum circle radius.
+                currentImageGray, // The 8-bit, single-channel, grayscale input image.
+                mStorage, // The output vector of found circles. Each vector is encoded as 3-element floating-point vector.
+                CV_HOUGH_GRADIENT, // Currently, the only implemented method is CV_HOUGH_GRADIENT.
+                1, // The inverse ratio of the accumulator resolution to the image resolution.
+                2, // Minimum distance between the centers of the detected circles. If the parameter
+                254, // CV_HOUGH_GRADIENT it is the higher threshold of the two passed to Canny() edge
+                25, // CV_HOUGH_GRADIENT is the accumulator threshold at the center detection stage.
+                tgtFrag.getImage().rows() / 4, // Minimum circle radius.
+                0 // Maximum circle radius.
         );
 
         Point avgCenter = new Point(0, 0);
         int avgRadius = 0;
 
-	if (detectedCircles != null && detectedCircles.total() > 0) {        
-        
+        if (detectedCircles != null && detectedCircles.total() > 0) {
+
             for (int i = 0; i < detectedCircles.total(); i++) {
                 CvPoint3D32f curCircle = new CvPoint3D32f(cvGetSeqElem(detectedCircles, i));
 
                 avgRadius += Math.round(curCircle.z());
                 avgCenter.x(avgCenter.x() + Math.round(curCircle.x()));
-                avgCenter.y(avgCenter.y() + Math.round(curCircle.y())); 
+                avgCenter.y(avgCenter.y() + Math.round(curCircle.y()));
             }
-            
+
             avgCenter = new Point(avgCenter.x() / detectedCircles.total(), avgCenter.y() / detectedCircles.total());
-            avgRadius /= detectedCircles.total();  
-            
+            avgRadius /= detectedCircles.total();
+
             outputCircles.add(new GeometricCircle(avgCenter, avgRadius));
             verify(tgtFrag, outputCircles);
-        }   
+        }
 
     }
 
@@ -159,32 +166,29 @@ public class GeometricCircle extends GeometricShape {
 
         logger.info("Starting.");
         Point fTL = tgtFrag.getTL();
-        
-        
-        List<Point> tgtPoints = GeomUtil.shiftPoints( tgtFrag.getPoints(), new Point(-fTL.x(), -fTL.y()) );
 
-	for (Object curItem : tgtShapes) {
+        List<Point> tgtPoints = GeomUtil.shiftPoints(tgtFrag.getPoints(), new Point(-fTL.x(), -fTL.y()));
+
+        for (Object curItem : tgtShapes) {
 
             GeometricCircle curCircle = (GeometricCircle) curItem;
-            
-            float detectionReliability = (float) 0.0;
-            
-            vector<int> circleData = ImgUtil::checkCircleSectorsCoverage(tgtPoints, tgtDetectedShapes[j], RELIABILITY_RADIUSEXP, RELIABILITY_SECTOR_DEGREES);
 
-		for (size_t i = 0; i < circleData.size(); i++) {
+            float detectionReliability = (float) 0.0;
+
+            int[] circleData = ImgUtil.checkCircleSectorsCoverage(tgtPoints, curCircle, RELIABILITY_RADIUSEXP, RELIABILITY_SECTOR_DEGREES);
+
+            for (int i = 0; i < circleData.length; i++) {
                 if (circleData[i] > 0) {
                     detectionReliability += 100.0 / (MAX_DEGREES / RELIABILITY_SECTOR_DEGREES);
                 }
             }
 
             if (detectionReliability >= RELIABILITY_TRESHOLD) {
-                tgtFrag.addCircle(tgtDetectedShapes[j]);
+                tgtFrag.addCircle(curCircle);
+                OutputUtility.writeMatCircles(tgtFrag.getImage(), tgtShapes, true);
             }
         }
 
-    }    
-    
-    
-    
-    
+    }
+
 }

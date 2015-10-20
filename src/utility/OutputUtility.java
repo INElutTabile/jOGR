@@ -1,6 +1,7 @@
 package utility;
 
 import java.util.List;
+import model.GeometricCircle;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.indexer.FloatBufferIndexer;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
@@ -29,6 +30,7 @@ public class OutputUtility {
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
     // --------------------------------------------------------------------- | 
+    
     private static final String MAIN_WINDOW_TITLE = "Main Display";
     private static final int MAIN_WINDOW_FLAGS = (CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
 
@@ -112,12 +114,36 @@ public class OutputUtility {
         for (Point curPoint : tgtPoints) {
             if (curPoint.x() >= 0 && curPoint.x() < myImage.cols() && curPoint.y() >= 0 && curPoint.y() < myImage.rows()) {
                 circle(myImage, curPoint, 0, new Scalar(0, 0, 255, 1.0), 1, 8, 0);
-  //              circle(myImage, curPoint, 4, new Scalar(0, 255, 0, 1.0), 1, 8, 0);
             }
         }
 
         writeMat(myImage, tgtNewSection);
     }
+    
+    /*
+     * 	Displays an image overlaid by circles.
+     *
+     *
+     */
+    public static void writeMatCircles(Mat tgtImage, List<GeometricCircle> tgtCircles, boolean tgtNewSection) {
+
+        Mat myImage = new Mat();
+
+        cvtColor(tgtImage, myImage, CV_GRAY2BGR);
+
+        for (GeometricCircle curCircle : tgtCircles) {
+
+            Point currentCenter = curCircle.getCenter();
+            int currentRadius = curCircle.getRadius();
+
+            // circle center
+            circle(myImage, currentCenter, 1, new Scalar(0, 255, 0, 1), -1, 8, 0);
+            // circle outline
+            circle(myImage, currentCenter, currentRadius, new Scalar(0, 0, 255, 1), 1, 8, 0);
+        }
+
+        writeMat(myImage, tgtNewSection);
+    }  
 
     // --------------------------------------------------------------------- | 
     // METHODS - CONSOLE PRINT

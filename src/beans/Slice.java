@@ -237,7 +237,7 @@ public class Slice {
 
             boolean keepFrag = ((Frag) pair.getValue()).updateImage();
             if (keepFrag) {
-                OutputUtility.writeMat(((Frag) pair.getValue()).getImage(), false);
+      //          OutputUtility.writeMat(((Frag) pair.getValue()).getImage(), false);
                 ((Frag) pair.getValue()).invokeFirstScan();
             } else {
                 it.remove();
