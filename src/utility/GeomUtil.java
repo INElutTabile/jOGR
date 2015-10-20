@@ -21,6 +21,7 @@ public class GeomUtil {
     // --------------------------------------------------------------------- | 
     //  METHODS - Geometric: low-level operations on coordinates
     // --------------------------------------------------------------------- | 
+    
     /**
      * Finds the minimum X-coordinate (i.e. north) in the given set of points.
      *
@@ -347,19 +348,21 @@ public class GeomUtil {
 //
 //        return resPoint + tgtOrigin;
 //    }
-//
-//    /**
-//     * Shifts the given point, adding the offset identified by 'tgtOffset'.
-//     */
-//    public static Point shiftPoint(Point tgtPoint, Point tgtOffset) {
-//
-//        int myX = MathUtil::findBetween(tgtPoint.x + tgtOffset.x
-//        , 0, 48151623);
-//	int myY = MathUtil::findBetween(tgtPoint.y + tgtOffset.y
-//        , 0, 48151623);
-//	return Point(myX, myY);
-//    }
-//
+
+    /**
+     * Shifts the given point, adding the offset identified by 'tgtOffset'.
+    
+     * @param tgtPoint
+     * @param tgtOffset
+     * @return 
+     */
+    public static Point shiftPoint(Point tgtPoint, Point tgtOffset) {
+
+        int myX = MathUtil.findBetween(tgtPoint.x() + tgtOffset.x(), 0, MAX_BOUND);
+	int myY = MathUtil.findBetween(tgtPoint.y() + tgtOffset.y(), 0, MAX_BOUND);
+	return new Point(myX, myY);
+    }
+
 //    /**
 //     * Shifts the given point, adding the offset identified by 'tgtOffset' (+
 //     * image inclusion check).
@@ -373,19 +376,21 @@ public class GeomUtil {
 //	return Point(myX, myY);
 //    }
 //
-//    /**
-//     * Shifts the given points, adding the offset identified by 'tgtOffset'.
-//     */
-//    public static List<Point> GeomUtil
-//
-//    ::shiftPoints(List<Point> tgtPoints, Point tgtOffset) {
-//
-//        for (size_t i = 0; i < tgtPoints.size(); i++) {
-//            tgtPoints[i] = shiftPoint(tgtPoints[i], tgtOffset);
-//        }
-//
-//        return tgtPoints;
-//    }
+    /**
+     * Shifts the given points, adding the offset identified by 'tgtOffset'.
+    
+     * @param tgtPoints
+     * @param tgtOffset
+     * @return 
+     */
+    public static List<Point> shiftPoints(List<Point> tgtPoints, Point tgtOffset) {
+
+        for (Point curPoint : tgtPoints) {
+            curPoint = shiftPoint(curPoint, tgtOffset);
+        }
+
+        return tgtPoints;
+    }
 //
 //    /**
 //     * Shifts the given points, adding the offset identified by 'tgtOffset'.

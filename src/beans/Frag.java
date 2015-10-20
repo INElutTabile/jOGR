@@ -133,6 +133,10 @@ public class Frag {
     public void setMaxY(int maxY) {
         this.maxY = maxY;
     }
+    
+    public Point getTL(){
+        return new Point(minX, minY);
+    }
 
     public Mat getImage() {
         return image;

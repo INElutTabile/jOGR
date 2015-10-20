@@ -8,9 +8,11 @@ package model;
 import org.bytedeco.javacpp.opencv_core.Rect;
 
 import beans.Frag;
+import beans.Text;
 import com.sun.javafx.geom.Vec3f;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.helper.opencv_core.CvArr;
 import org.bytedeco.javacpp.indexer.FloatBufferIndexer;
 import org.bytedeco.javacpp.indexer.UByteBufferIndexer;
@@ -30,6 +32,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_HOUGH_GRADIENT;
 import static org.bytedeco.javacpp.opencv_imgproc.HoughCircles;
 import static org.bytedeco.javacpp.opencv_imgproc.cvHoughCircles;
+import utility.GeomUtil;
 import utility.OutputUtility;
 
 /**
@@ -38,9 +41,12 @@ import utility.OutputUtility;
  */
 public class GeometricCircle extends GeometricShape {
 
+    final static Logger logger = Logger.getLogger(GeometricCircle.class);    
+    
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
     // --------------------------------------------------------------------- |
+    
     static final int MAX_DEGREES = 360;
 
     static final double RELIABILITY_RADIUSEXP = 1.25;
@@ -52,6 +58,7 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
+    
     /** The centre of the circle. */
     private Point center;
 
@@ -104,6 +111,7 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  METHODS
     // --------------------------------------------------------------------- | 
+    
     @Override
     public void detect(Frag tgtFrag) {
 
@@ -148,7 +156,35 @@ public class GeometricCircle extends GeometricShape {
 
     @Override
     public void verify(Frag tgtFrag, List tgtShapes) {
-        
-    }
 
+        logger.info("Starting.");
+        Point fTL = tgtFrag.getTL();
+        
+        
+        List<Point> tgtPoints = GeomUtil.shiftPoints( tgtFrag.getPoints(), new Point(-fTL.x(), -fTL.y()) );
+
+	for (Object curItem : tgtShapes) {
+
+            GeometricCircle curCircle = (GeometricCircle) curItem;
+            
+            float detectionReliability = (float) 0.0;
+            
+            vector<int> circleData = ImgUtil::checkCircleSectorsCoverage(tgtPoints, tgtDetectedShapes[j], RELIABILITY_RADIUSEXP, RELIABILITY_SECTOR_DEGREES);
+
+		for (size_t i = 0; i < circleData.size(); i++) {
+                if (circleData[i] > 0) {
+                    detectionReliability += 100.0 / (MAX_DEGREES / RELIABILITY_SECTOR_DEGREES);
+                }
+            }
+
+            if (detectionReliability >= RELIABILITY_TRESHOLD) {
+                tgtFrag.addCircle(tgtDetectedShapes[j]);
+            }
+        }
+
+    }    
+    
+    
+    
+    
 }
