@@ -137,9 +137,9 @@ public class OutputUtility {
             int currentRadius = curCircle.getRadius();
 
             // circle center
-            circle(myImage, currentCenter, 1, new Scalar(0, 255, 0, 1), -1, 8, 0);
+            circle(myImage, currentCenter, 1, new Scalar(0, 255, 0, 1), 2, 8, 0);
             // circle outline
-            circle(myImage, currentCenter, currentRadius, new Scalar(0, 0, 255, 1), 1, 8, 0);
+            circle(myImage, currentCenter, currentRadius, new Scalar(0, 0, 255, 1), 2, 8, 0);
         }
 
         writeMat(myImage, tgtNewSection);
@@ -187,6 +187,40 @@ public class OutputUtility {
             row += "|";
             System.out.println(row);
         }
+    }    
+    
+    /**
+     *	Prints the content of a {@code int[]} on the console.
+     *
+     * @param tgtList
+     */
+    public static void printIntArray(int[] tgtList) {
+
+        String message = "|";
+
+        for (int i = 0; i < tgtList.length; i++) {
+
+            message += tgtList[i] + " ";
+        }
+        message += "|";
+        System.out.println(message);
+    }
+    
+    /**
+     *	Prints the content of a {@code List<Point>} on the console.
+     *
+     * @param tgtList
+     */
+    public static void printPointList(List<Point> tgtList) {
+
+        String message = "|";
+
+        for (Point curPoint : tgtList) {
+
+            message += "(" + curPoint.x() + ", " + curPoint.y() + ") ";
+        }
+        message += "|";
+        System.out.println(message);
     }    
 
 }

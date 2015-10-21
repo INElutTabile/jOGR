@@ -47,7 +47,6 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  CONSTANTS
     // --------------------------------------------------------------------- |
-    
     static final int MAX_DEGREES = 360;
 
     static final double RELIABILITY_RADIUSEXP = 1.25;
@@ -59,7 +58,6 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  FIELDS
     // --------------------------------------------------------------------- |
-    
     /** The centre of the circle. */
     private Point center;
 
@@ -69,7 +67,6 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  CONSTRUCTORS
     // --------------------------------------------------------------------- |
-    
     public GeometricCircle() {
         super(GeometricShape.CIRCLE);
     }
@@ -89,7 +86,6 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  EXTENDED GETTERS AND SETTERS
     // --------------------------------------------------------------------- |
-    
     public Point getCenter() {
         return center;
     }
@@ -118,7 +114,6 @@ public class GeometricCircle extends GeometricShape {
     // --------------------------------------------------------------------- | 
     //  METHODS
     // --------------------------------------------------------------------- | 
-    
     @Override
     public void detect(Frag tgtFrag) {
 
@@ -164,7 +159,6 @@ public class GeometricCircle extends GeometricShape {
     @Override
     public void verify(Frag tgtFrag, List tgtShapes) {
 
-        logger.info("Starting.");
         Point fTL = tgtFrag.getTL();
 
         List<Point> tgtPoints = GeomUtil.shiftPoints(tgtFrag.getPoints(), new Point(-fTL.x(), -fTL.y()));
@@ -172,23 +166,29 @@ public class GeometricCircle extends GeometricShape {
         for (Object curItem : tgtShapes) {
 
             GeometricCircle curCircle = (GeometricCircle) curItem;
-
+            
             float detectionReliability = (float) 0.0;
 
             int[] circleData = ImgUtil.checkCircleSectorsCoverage(tgtPoints, curCircle, RELIABILITY_RADIUSEXP, RELIABILITY_SECTOR_DEGREES);
-
+            
             for (int i = 0; i < circleData.length; i++) {
                 if (circleData[i] > 0) {
                     detectionReliability += 100.0 / (MAX_DEGREES / RELIABILITY_SECTOR_DEGREES);
                 }
             }
 
+            logger.info("Circle reliability: " + detectionReliability + " (" + RELIABILITY_TRESHOLD + ")");
+            
             if (detectionReliability >= RELIABILITY_TRESHOLD) {
                 tgtFrag.addCircle(curCircle);
                 OutputUtility.writeMatCircles(tgtFrag.getImage(), tgtShapes, true);
             }
         }
+    }
 
+    @Override
+    public String toString() {
+        return "GeometricCircle{" + "center=(" + center.x() + ", " + center.y() + ")" + ", radius=" + radius + '}';
     }
 
 }

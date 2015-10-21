@@ -225,7 +225,7 @@ public class Slice {
 
     public void invokeFirstScan() {
 
-        logger.info("Starting.");
+//        logger.info("Starting.");
 
         if (frag_map.isEmpty()) {
             return;
@@ -244,7 +244,7 @@ public class Slice {
             }
         }
 
-        logger.info("Frags identified: " + chosen_frags.size());
+        logger.info("Frags with geometric shapes identified: " + chosen_frags.size());
     }
 
 }

@@ -404,7 +404,7 @@ public class ImgUtil {
 
         Point circleCenter = tgtCircle.getCenter();
         int circleRadius = (int) (tgtCircle.getRadius() * tgtRadiusExp);
-
+        
         int[] circleData = new int[360 / tgtStep];
 
         for (Point curPoint : tgtPoints) {
@@ -418,7 +418,7 @@ public class ImgUtil {
                 circleData[angleDeg / tgtStep] += 1;
             }
         }
-        
+
         return circleData;
     }
 

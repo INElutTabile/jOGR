@@ -5,9 +5,11 @@
  */
 package utility;
 
+import java.util.ArrayList;
 import org.bytedeco.javacpp.opencv_core.Point;
 
 import java.util.List;
+import model.GeometricCircle;
 
 /**
  *
@@ -492,11 +494,11 @@ public class GeomUtil {
      */
     public static List<Point> shiftPoints(List<Point> tgtPoints, Point tgtOffset) {
 
+        List<Point> outObj = new ArrayList<>();
         for (Point curPoint : tgtPoints) {
-            curPoint = shiftPoint(curPoint, tgtOffset);
+            outObj.add(shiftPoint(curPoint, tgtOffset));
         }
-
-        return tgtPoints;
+        return outObj;
     }
 //
 //    /**
@@ -542,6 +544,19 @@ public class GeomUtil {
 //        }
 //        return tgtPoints;
 //    }
+    
+    /**
+     * Shifts the given circle, adding the offset identified by 'tgtOffset'.
+    
+     * @param tgtCircle    
+     * @param tgtOffset
+     * @return 
+     */
+    public static GeometricCircle shiftCircle(GeometricCircle tgtCircle, Point tgtOffset) {
+
+        Point shifterCenter = shiftPoint(tgtCircle.getCenter(), tgtOffset);
+        return new GeometricCircle(shifterCenter, tgtCircle.getRadius());
+    }     
 
     // --------------------------------------------------------------------- | 
     // METHODS - Geometric: mid-level operations on coordinates
@@ -555,9 +570,8 @@ public class GeomUtil {
      * @return 
      */
     public static float distance(Point tgtPointA, Point tgtPointB) {
-
+        
         float currentDistance = (float) Math.sqrt(Math.pow((tgtPointA.x() - tgtPointB.x()), 2) + Math.pow((tgtPointA.y() - tgtPointB.y()), 2));
-
         return currentDistance;
     }
 

@@ -222,7 +222,7 @@ public class Frag {
 
     public void invokeFirstScan() {
 
-        logger.info("Starting: Frag: " + this.toString());
+//        logger.info("Starting: Frag: " + this.toString());
 
 	new GeometricCircle().detect(this);
 //	GeometricRectangle::detect(*this);
@@ -231,16 +231,12 @@ public class Frag {
             slice.getChosen_frags().add(this);
         }
 
-        logger.info("Returning.");
+//        logger.info("Returning.");
     }
 
     @Override
     public String toString() {
         return "Frag{" + "id=" + id + ", minX=" + minX + ", minY=" + minY + ", maxX=" + maxX + ", maxY=" + maxY + '}';
     }
-
-
-    
-    
 
 }
